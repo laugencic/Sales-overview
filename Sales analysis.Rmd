@@ -4,14 +4,223 @@ author: "Lawrence Kamande"
 date: "2025-12-12"
 output: html_document
 ---
+```{r}
+library(tidyverse)
+```
 
+1️⃣ Country & Market Performance
+1).Which country appears the most in our sales records?
 
 ```{r}
 data<-read.csv("C:\\Users\\user\\Desktop\\Projects\\Data A_S\\sales.csv")
-
-```
-Which country appears the most?
-```{r}
 table(data$Country)
 ```
-The country that appear the most is the united states 
+The united states appears most.
+
+2).Which country generates the highest total revenue?
+```{r}
+data %>%
+  select(Revenue,Country) %>%
+  group_by(Country) %>%
+  summarise(
+    Revenue=sum(Revenue)
+  ) %>%
+  arrange(-Revenue)
+```
+The united states generates the highest revenue.
+
+3).Which country generates the highest total profit?
+```{r}
+data %>%
+  select(Profit,Country) %>%
+  group_by(Country) %>%
+  summarise(
+    Total_Profit=sum(Profit)
+  ) %>%
+  arrange(-Total_Profit)
+```
+The united states has the highest total profit.
+
+4).What is the average selling price per country?
+```{r}
+data %>%
+  select(Unit_Price,Country) %>%
+  group_by(Country) %>%
+  summarise(
+    Average_Selling_Price=mean(Unit_Price)
+  ) %>%
+  arrange(-Average_Selling_Price)
+```
+
+5).What is the average order quantity per country?
+```{r}
+data %>%
+  select(Country,Order_Quantity) %>%
+  aggregate(Order_Quantity~Country,mean) %>%
+  arrange(-Order_Quantity)
+```
+
+6).Which countries have the highest profit margins?
+```{r}
+data %>%
+  select(Country,Profit,Revenue) %>%
+  group_by(Country) %>%
+  summarise(
+    Total_Profit=sum(Profit,na.rm = TRUE),
+    Total_Revenue=sum(Revenue,na.rm = TRUE)
+  ) %>%
+  mutate(Profit_Margin=(Total_Profit/Total_Revenue)*100) %>%
+  arrange(-Profit_Margin)
+```
+
+7).Does any country perform poorly (low revenue or low profit)?
+```{r}
+data %>%
+  select(Country,Revenue,Profit) %>%
+  group_by(Country) %>%
+  summarise(
+    Total_profit=sum(Profit,na.rm = TRUE),
+    Total_revenue=sum(Revenue,na.rm = TRUE)
+  ) %>%
+  arrange(Total_profit,Total_revenue)
+```
+France has the lowest revenue and profit.
+
+8).Which states contribute the most to their countries’ total revenue?
+```{r}
+data %>%
+  select(State,Country,Revenue) %>%
+  group_by(State) %>%
+  summarise(
+    Total_revenue=sum(Revenue,na.rm = TRUE)
+  ) %>%
+  arrange(-Total_revenue)
+```
+The top two are California and England
+
+2️⃣ Product & Category Insights
+9).Which product category (Accessories, Bikes, Clothing, etc.) earns the most revenue overall?
+```{r}
+data %>%
+  select(Product_Category,Revenue) %>%
+  group_by(Product_Category) %>%
+  summarise(
+    Total_revenue=sum(Revenue)
+  ) %>%
+  arrange(-Total_revenue)
+```
+Bikes generate the most revenue
+
+10).Which specific product generates the highest revenue?
+```{r}
+data %>%
+  select(Product,Revenue) %>%
+  group_by(Product) %>%
+    summarise(
+    Total_revenue=sum(Revenue)
+  ) %>%
+  arrange(-Total_revenue)
+```
+Road-150 Red, 62 generates the highest amount of revenue
+
+11).Which product generates the highest profit?
+```{r}
+data %>%
+  select(Product,Profit) %>%
+  group_by(Product) %>%
+    summarise(
+    Total_profit=sum(Profit)
+  ) %>%
+  arrange(-Total_profit)
+```
+Mountain-200 Black, 38 generates the highest profit
+
+12).Which product has the highest average order quantity?
+```{r}
+data %>%
+  select(Product,Order_Quantity) %>%
+  group_by(Product) %>%
+  summarise(
+    Orders=mean(Order_Quantity)
+  ) %>%
+  arrange(-Orders)
+```
+Racing Socks, M has the highest average order quantity
+
+13).Which product has the best profit margin?
+```{r}
+data %>%
+  select(Product,Profit,Revenue) %>%
+  group_by(Product) %>%
+  summarise(
+    Total_profit=sum(Profit),
+    Total_Revenue=sum(Revenue)
+  ) %>%
+  mutate(Profit_Margin=(Total_profit/Total_Revenue)*100)%>%
+  arrange(-Profit_Margin)
+```
+Road Tire Tube has the highest profit margin
+
+14).Which sub-categories are selling the most?
+# Using the order quantity 
+#You can use either the profit or the revenue 
+```{r}
+data %>%
+  select(Sub_Category,Order_Quantity,Revenue,Profit) %>%
+  group_by(Sub_Category) %>%
+  summarise(
+    Orders=sum(Order_Quantity),
+    Profit=sum(Profit),
+    Revenue=sum(Revenue)
+  ) %>%
+  arrange(-Orders)
+```
+Tires and Tubes is selling the most using the order quantity basis 
+
+15).Is there any product that sells extremely little?
+```{r}
+data %>%
+  select(Product,Order_Quantity,Revenue,Profit) %>%
+  group_by(Product) %>%
+  summarise(
+    Orders=sum(Order_Quantity),
+    Profit=sum(Profit),
+    Revenue=sum(Revenue)
+  ) %>%
+  arrange(Orders)
+```
+Mountain-500 Black, 52 sells the least , still using the order quantity basis
+
+16).Which product category is most profitable in each country?
+```{r}
+data %>%
+  select(Country, Product_Category, Profit) %>%
+  group_by(Country, Product_Category) %>%
+  summarise(
+    Profit = sum(Profit)
+  ) %>%
+  arrange(desc(Profit))
+
+```
+
+3️⃣ Pricing & Cost Efficiency
+17)What is the average unit cost and average unit price across the dataset?
+```{r}
+data %>%
+  select(Unit_Cost,Unit_Price) %>%
+  summarise(
+    Cost=mean(Unit_Cost),
+    Price=mean(Unit_Price)
+  ) %>%
+  arrange()
+```
+
+18)Which products or categories have the biggest markup?
+```{r}
+data %>%
+  mutate(Markup = (Unit_Price - Unit_Cost) * Order_Quantity) %>%
+  group_by(Product, Product_Category) %>%
+  summarise(Total_Markup = sum(Markup)) %>%
+  arrange(desc(Total_Markup))
+  
+```
